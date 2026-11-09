@@ -16,7 +16,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
-from .vnc import BrunnerVnc, BrunnerVncError
+from .ocr import GlyphOcr
+from .reader import read_all
+from .vnc import BrunnerVncError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,6 +32,7 @@ class BrunnerCoordinator(DataUpdateCoordinator[dict[str, object]]):
         interval = entry.options.get(
             CONF_SCAN_INTERVAL, entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
         )
+        self._ocr: GlyphOcr | None = None
         super().__init__(
             hass,
             _LOGGER,
@@ -37,23 +40,18 @@ class BrunnerCoordinator(DataUpdateCoordinator[dict[str, object]]):
             update_interval=timedelta(seconds=interval),
         )
 
-    async def _async_update_data(self) -> dict[str, object]:
+    async def _async_update_data(self) -> dict[str, float | None]:
         return await self.hass.async_add_executor_job(self._poll)
 
-    def _poll(self) -> dict[str, object]:
-        """Blocking poll: capture screens and OCR them into a flat dict.
+    def _poll(self) -> dict[str, float | None]:
+        """Blocking poll: navigate each screen, capture and OCR its regions.
 
-        TODO(poller build): navigate Home -> each screen, capture, and run
-        region OCR per docs/sensor-map.md. For now this only proves liveness.
+        One tap per VNC connection (the display drops taps batched over a single
+        session). Takes over the local panel for the duration, so poll gently.
         """
+        if self._ocr is None:
+            self._ocr = GlyphOcr.load()
         try:
-            with BrunnerVnc(self._host, self._port) as vnc:
-                frame = vnc.capture()
+            return read_all(self._host, self._port, self._ocr)
         except BrunnerVncError as err:
             raise UpdateFailed(f"Brunner display unreachable: {err}") from err
-
-        return {
-            "display_name": vnc.name,
-            "frame_width": frame.width,
-            "frame_height": frame.height,
-        }

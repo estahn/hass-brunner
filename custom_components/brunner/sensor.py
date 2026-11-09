@@ -16,7 +16,6 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    PERCENTAGE,
     UnitOfPower,
     UnitOfPressure,
     UnitOfTemperature,
@@ -50,72 +49,59 @@ def _t(key: str, name: str) -> BrunnerSensorDescription:
     )
 
 
-# Mirrors docs/sensor-map.md. Extend as the poller gains screens.
-SENSORS: tuple[BrunnerSensorDescription, ...] = (
-    # Heat pump (BWP)
-    _t("bwp_outdoor_temp", "Outdoor temperature"),
-    _t("bwp_flow_temp", "Heat pump flow temperature"),
-    _t("bwp_return_temp", "Heat pump return temperature"),
-    _t("bwp_air_intake_temp", "Heat pump air intake temperature"),
-    BrunnerSensorDescription(
-        key="bwp_flow_rate", value_key="bwp_flow_rate",
-        name="Heat pump flow rate",
+def _flow(key: str, name: str) -> BrunnerSensorDescription:
+    return BrunnerSensorDescription(
+        key=key, value_key=key, name=name,
         native_unit_of_measurement=UnitOfVolumeFlowRate.LITERS_PER_MINUTE,
         state_class=SensorStateClass.MEASUREMENT,
-    ),
-    BrunnerSensorDescription(
-        key="bwp_fan", value_key="bwp_fan", name="Heat pump fan",
-        native_unit_of_measurement=PERCENTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    BrunnerSensorDescription(
-        key="bwp_compressor_speed", value_key="bwp_compressor_speed",
-        name="Heat pump compressor speed",
-        native_unit_of_measurement="rev/s",
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    BrunnerSensorDescription(
-        key="bwp_heating_power", value_key="bwp_heating_power",
-        name="Heat pump heating power",
+    )
+
+
+def _power(key: str, name: str) -> BrunnerSensorDescription:
+    return BrunnerSensorDescription(
+        key=key, value_key=key, name=name,
         native_unit_of_measurement=UnitOfPower.KILO_WATT,
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
-    ),
+    )
+
+
+def _pressure(key: str, name: str) -> BrunnerSensorDescription:
+    return BrunnerSensorDescription(
+        key=key, value_key=key, name=name,
+        native_unit_of_measurement=UnitOfPressure.BAR,
+        device_class=SensorDeviceClass.PRESSURE,
+        state_class=SensorStateClass.MEASUREMENT,
+    )
+
+
+# Keys MUST match the region keys produced by the coordinator (regions.py).
+SENSORS: tuple[BrunnerSensorDescription, ...] = (
+    # Heat pump (BWP Sensors screen)
     BrunnerSensorDescription(
         key="bwp_cop", value_key="bwp_cop", name="Heat pump COP",
         state_class=SensorStateClass.MEASUREMENT,
     ),
-    BrunnerSensorDescription(
-        key="bwp_pressure_high", value_key="bwp_pressure_high",
-        name="Heat pump high pressure",
-        native_unit_of_measurement=UnitOfPressure.BAR,
-        device_class=SensorDeviceClass.PRESSURE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    BrunnerSensorDescription(
-        key="bwp_pressure_low", value_key="bwp_pressure_low",
-        name="Heat pump low pressure",
-        native_unit_of_measurement=UnitOfPressure.BAR,
-        device_class=SensorDeviceClass.PRESSURE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    BrunnerSensorDescription(
-        key="bwp_status", value_key="bwp_status", name="Heat pump status",
-    ),
-    # Buffer / system overview
+    _flow("bwp_flow_rate", "Heat pump flow rate"),
+    _t("bwp_flow_temp", "Heat pump flow temperature"),
+    _t("bwp_return_temp", "Heat pump return temperature"),
+    _t("bwp_air_intake_temp", "Heat pump air intake temperature"),
+    _power("bwp_heating_power", "Heat pump heating power"),
+    _pressure("bwp_pressure_high", "Heat pump high pressure"),
+    _pressure("bwp_pressure_low", "Heat pump low pressure"),
+    # System overview
+    _t("outdoor_temp", "Outdoor temperature"),
+    _power("solar_pv_power", "Solar PV power"),
+    _power("fireplace_power", "Fireplace power"),
     _t("buffer_top_temp", "Buffer top temperature"),
     _t("buffer_middle_temp", "Buffer middle temperature"),
     _t("buffer_bottom_temp", "Buffer bottom temperature"),
+    _pressure("buffer_pressure", "Buffer pressure"),
     # Heating circuit 1
     _t("hk1_flow_set", "Heating circuit 1 flow setpoint"),
     _t("hk1_flow_actual", "Heating circuit 1 flow temperature"),
     _t("hk1_return_actual", "Heating circuit 1 return temperature"),
-    BrunnerSensorDescription(
-        key="hk1_flow_rate", value_key="hk1_flow_rate",
-        name="Heating circuit 1 flow rate",
-        native_unit_of_measurement=UnitOfVolumeFlowRate.LITERS_PER_MINUTE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
+    _flow("hk1_flow_rate", "Heating circuit 1 flow rate"),
     # Hot water
     _t("dhw_set_temp", "Hot water setpoint"),
 )

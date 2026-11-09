@@ -159,7 +159,13 @@ All sensor‑bearing screens now captured: BWP Home/Sensors/Status, system overv
 Solar‑PV, Heating circuit 1 (2 pages), Hot water (2 pages), EOS stove.
 Archive is rolling 2 h graphs only — no history backfill.
 
-## Open items (for the poller build)
-- Exact pixel boxes per value (measure once, per screen, when building OCR).
-- Navigation macro: tap sequence to reach each screen from Home, with settle delays.
-- Decide poll cadence (suggest 2–5 min) to minimise local‑display takeover.
+## Poller build — done
+- Exact pixel boxes + polarity per value live in `custom_components/brunner/regions.py`.
+- Navigation macros (tap sequences, one tap per VNC connection) in `reader.py`.
+- OCR via bundled digit templates (`ocr.py` + `glyphs.npz`), verified live.
+- Default poll cadence 5 min (`const.py`) to minimise local‑display takeover.
+
+## Still open
+- Fan %, compressor rev/s, HP status/mode enums (text, not numeric) — not yet read.
+- EOS stove screen has a variable layout; not yet in the region table.
+- Field validation across operating states (defrost, active heating, cooling).

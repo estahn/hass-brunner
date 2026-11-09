@@ -156,8 +156,29 @@ class BrunnerVnc:
     def tap(self, x: int, y: int, settle: float = 1.0) -> None:
         """Send a pointer down+up (a tap) at (x, y) and wait for the UI."""
         assert self._sock is not None
-        self._sock.sendall(struct.pack(">BBHH", 5, 1, x, y))
+        self._sock.sendall(struct.pack(">BBHH", 5, 0, x, y))  # move
+        time.sleep(0.03)
+        self._sock.sendall(struct.pack(">BBHH", 5, 1, x, y))  # down
         time.sleep(0.05)
-        self._sock.sendall(struct.pack(">BBHH", 5, 0, x, y))
+        self._sock.sendall(struct.pack(">BBHH", 5, 0, x, y))  # up
         if settle:
             time.sleep(settle)
+
+
+def tap_once(
+    host: str, port: int, x: int, y: int, settle: float = 1.0, timeout: float = 10.0
+) -> None:
+    """Open a fresh session, send a single tap, close.
+
+    The display's VNC server reliably honours one tap per connection but drops
+    taps when many are sent over a single long-lived session, so navigation is
+    done one tap at a time.
+    """
+    with BrunnerVnc(host, port, timeout) as vnc:
+        vnc.tap(x, y, settle=settle)
+
+
+def capture_once(host: str, port: int, timeout: float = 10.0) -> Frame:
+    """Open a fresh session, capture one frame, close."""
+    with BrunnerVnc(host, port, timeout) as vnc:
+        return vnc.capture()

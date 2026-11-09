@@ -4,9 +4,13 @@ Local Home Assistant integration for **BRUNNER** heating systems (BWP heat pump,
 EOS wood stove, BHZ central unit, Solar‑PV) that have a Touchdisplay 2.0/3.0 —
 **without** the paid BRUNNER Energiemanager / Smart Home (BSH) Modbus board.
 
-> Status: **early scaffold.** The access method is proven and every sensor screen
-> is mapped (see [`docs/sensor-map.md`](docs/sensor-map.md)); the OCR polling
-> logic is the next milestone. Not yet functional as an installed integration.
+> Status: **working poller, pre-release.** Access, navigation and OCR are
+> implemented and verified end-to-end against a live BWP 13 green: 20 values
+> (heat-pump flow/return/COP/power/pressures, buffer temps, heating-circuit
+> flow/return/rate, solar & fireplace power, hot-water setpoint) read correctly,
+> cross-checked where two screens show the same value. Still to do before a
+> tagged release: config-flow/coordinator testing inside a running Home
+> Assistant, fan/compressor/status enums, and more field validation.
 
 ## How it works
 
@@ -27,14 +31,29 @@ Since VNC exposes only pixels, this integration:
 Each poll briefly takes over the local display (as a cloud session does), so the
 default poll interval is deliberately slow (5 min).
 
-## Requirements & open design questions
+## OCR approach
+
+Values are a fixed GUI font at fixed positions, so OCR is a bundled **digit
+template matcher** ([`ocr.py`](custom_components/brunner/ocr.py)) needing only
+Pillow and numpy — both already in Home Assistant, so no Tesseract binary and no
+extra wheels at runtime. A region is cropped, thresholded (polarity per region,
+since buffer temps are white-on-colour), segmented into glyphs, and each glyph
+height-normalised and matched against bundled templates
+([`glyphs.npz`](custom_components/brunner/glyphs.npz)); the first whitespace-
+delimited number token is kept, so units never need OCR. Templates are built by
+[`scripts/train_glyphs.py`](scripts/train_glyphs.py), which uses Tesseract *only
+at training time* to label glyphs harvested from captures.
+
+Validate or re-measure against your own display with
+[`scripts/poll_once.py`](scripts/poll_once.py) (`python scripts/poll_once.py
+<host> --dump`).
+
+## Requirements
 
 - The display must be reachable over the network with VNC enabled (default on
   the systems tested).
-- **OCR engine is not yet chosen.** Values are a normal font at fixed positions,
-  so options include Tesseract (needs a system binary — awkward inside HA), a
-  bundled lightweight digit classifier, or template matching. Tracked for the
-  poller build.
+- Runtime: Pillow + numpy (Home Assistant core dependencies). Tesseract is a
+  dev-only dependency for retraining templates.
 
 ## Security note
 
