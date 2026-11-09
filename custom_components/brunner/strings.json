@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Brunner Heating",
+        "description": "Connect to the Brunner touchdisplay's VNC server on your local network.",
+        "data": {
+          "host": "Host (touchdisplay IP address)",
+          "port": "Port",
+          "scan_interval": "Poll interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the touchdisplay VNC server at that address."
+    },
+    "abort": {
+      "already_configured": "This touchdisplay is already configured."
+    }
+  }
+}
