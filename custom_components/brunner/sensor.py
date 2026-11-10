@@ -104,6 +104,16 @@ SENSORS: tuple[BrunnerSensorDescription, ...] = (
     _flow("hk1_flow_rate", "Heating circuit 1 flow rate"),
     # Hot water
     _t("dhw_set_temp", "Hot water setpoint"),
+    # Text enums (whole-region template match; None when state not yet seeded)
+    BrunnerSensorDescription(
+        key="bwp_status", value_key="bwp_status", name="Heat pump status",
+    ),
+    BrunnerSensorDescription(
+        key="bwp_mode", value_key="bwp_mode", name="Heat pump mode",
+    ),
+    BrunnerSensorDescription(
+        key="bwp_defrost", value_key="bwp_defrost", name="Heat pump defrost",
+    ),
 )
 
 

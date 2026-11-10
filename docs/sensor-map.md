@@ -165,7 +165,19 @@ Archive is rolling 2 h graphs only — no history backfill.
 - OCR via bundled digit templates (`ocr.py` + `glyphs.npz`), verified live.
 - Default poll cadence 5 min (`const.py`) to minimise local‑display takeover.
 
+## Text enums — done (seeded states only)
+- `bwp_status`, `bwp_mode`, `bwp_defrost` read via whole-region template match
+  (`enums.py` + `enum_templates.npz`, seeded by `scripts/train_enums.py`).
+- Only seeded states are recognised (currently: status=standby, mode=heating,
+  defrost=off); other states read as None until captured and added. The leading
+  state code in "1 STAND BY" is part of the matched region.
+- `bwp_running` (binary) is derived from flow rate / heating power — more
+  reliable than the tiny fan/compressor pills.
+
 ## Still open
-- Fan %, compressor rev/s, HP status/mode enums (text, not numeric) — not yet read.
+- Fan % and compressor rev/s: rendered in a ~6px pill font, too small to OCR
+  reliably (a "0" misreads as "1"); use `bwp_running` instead. Revisit if a
+  larger readout exists.
+- More enum states: capture status/mode/defrost in running/cooling/defrost
+  states and add them to `scripts/train_enums.py` (Env.-zone is highly dynamic).
 - EOS stove screen has a variable layout; not yet in the region table.
-- Field validation across operating states (defrost, active heating, cooling).

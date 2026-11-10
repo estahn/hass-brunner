@@ -5,12 +5,13 @@ EOS wood stove, BHZ central unit, Solarâ€‘PV) that have a Touchdisplay 2.0/3.0 â
 **without** the paid BRUNNER Energiemanager / Smart Home (BSH) Modbus board.
 
 > Status: **working poller, pre-release.** Access, navigation and OCR are
-> implemented and verified end-to-end against a live BWP 13 green: 20 values
-> (heat-pump flow/return/COP/power/pressures, buffer temps, heating-circuit
-> flow/return/rate, solar & fireplace power, hot-water setpoint) read correctly,
-> cross-checked where two screens show the same value. Still to do before a
-> tagged release: config-flow/coordinator testing inside a running Home
-> Assistant, fan/compressor/status enums, and more field validation.
+> implemented and verified end-to-end against a live BWP 13 green: 20 numeric
+> values (heat-pump flow/return/COP/power/pressures, buffer temps,
+> heating-circuit flow/return/rate, solar & fireplace power, hot-water setpoint)
+> plus 3 text enums (status/mode/defrost) and a derived "running" binary, all
+> read correctly and cross-checked where two screens show the same value. Still
+> to do before a tagged release: config-flow/coordinator testing inside a running
+> Home Assistant, more enum states, and the variable-layout EOS stove screen.
 
 ## How it works
 

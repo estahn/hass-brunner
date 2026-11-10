@@ -12,8 +12,9 @@ from typing import Callable
 
 from PIL import Image
 
+from .enums import EnumMatcher
 from .ocr import GlyphOcr
-from .regions import SCREENS, Screen
+from .regions import ENUM_SCREENS, SCREENS, EnumScreen, Screen
 from .vnc import capture_once, tap_once
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,15 +28,18 @@ def read_all(
     host: str,
     port: int,
     ocr: GlyphOcr,
+    enum_matcher: EnumMatcher | None = None,
     settle: float = 1.0,
     screens: tuple[Screen, ...] = SCREENS,
+    enum_screens: tuple[EnumScreen, ...] = ENUM_SCREENS,
     on_screen: Callable[[str, Image.Image], None] | None = None,
-) -> dict[str, float | None]:
-    """Navigate every screen and OCR its regions, one tap per VNC connection.
+) -> dict[str, object]:
+    """Navigate every screen and read its regions, one tap per VNC connection.
 
-    Returns a flat ``{sensor_key: value}`` dict. Unreadable regions map to None.
+    Returns a flat ``{sensor_key: value}`` dict (numbers, enum strings, and a
+    derived ``bwp_running`` bool). Unreadable regions map to None.
     """
-    values: dict[str, float | None] = {}
+    values: dict[str, object] = {}
     for tap in _HOME_TAPS:
         tap_once(host, port, *tap, settle=0.5)
     for screen in screens:
@@ -50,6 +54,24 @@ def read_all(
             values[region.key] = (
                 round(num * region.scale, 2) if num is not None else None
             )
+    if enum_matcher is not None:
+        for screen in enum_screens:
+            for tap in screen.taps:
+                tap_once(host, port, *tap, settle=settle)
+            frame = capture_once(host, port)
+            image = Image.frombytes("RGB", (frame.width, frame.height), frame.rgb)
+            if on_screen is not None:
+                on_screen(screen.name, image)
+            for region in screen.regions:
+                values[region.key] = enum_matcher.match(image, region.box, region.field)
+    # Derived: the heat pump is running when it moves water / makes heat. This is
+    # more reliable than OCR'ing the tiny fan/compressor pills.
+    flow_rate = values.get("bwp_flow_rate")
+    heat_power = values.get("bwp_heating_power")
+    if isinstance(flow_rate, (int, float)) or isinstance(heat_power, (int, float)):
+        values["bwp_running"] = bool((flow_rate or 0) > 0 or (heat_power or 0) > 0)
+    else:
+        values["bwp_running"] = None
     # Return the panel to a neutral Home screen for the local user.
     for tap in _HOME_TAPS:
         tap_once(host, port, *tap, settle=0.3)

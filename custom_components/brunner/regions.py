@@ -31,6 +31,22 @@ class Screen:
     regions: tuple[Region, ...] = field(default_factory=tuple)
 
 
+@dataclass(frozen=True)
+class EnumRegion:
+    """A text field matched against seeded whole-region templates."""
+
+    key: str
+    field: str
+    box: tuple[int, int, int, int]
+
+
+@dataclass(frozen=True)
+class EnumScreen:
+    name: str
+    taps: tuple[tuple[int, int], ...]
+    regions: tuple[EnumRegion, ...] = field(default_factory=tuple)
+
+
 # Bottom tabs and common top icons (640x480)
 TAB_EOS = (230, 465)
 TAB_HEIZUNG = (300, 465)
@@ -79,6 +95,22 @@ SCREENS: tuple[Screen, ...] = (
         taps=(TAB_HEIZUNG, (440, 45)),
         regions=(
             Region("dhw_set_temp", (272, 269, 302, 284)),
+        ),
+    ),
+)
+
+
+# Text enum fields (BWP Status screen). States are matched against seeded
+# whole-region templates (see enums.py, scripts/train_enums.py). Only seeded
+# states are recognised; others read as None until captured and added.
+ENUM_SCREENS: tuple[EnumScreen, ...] = (
+    EnumScreen(
+        "bwp_status",
+        taps=(TAB_BWP, (360, 45)),
+        regions=(
+            EnumRegion("bwp_status", "bwp_status", (200, 328, 352, 352)),
+            EnumRegion("bwp_mode", "bwp_mode", (258, 390, 352, 414)),
+            EnumRegion("bwp_defrost", "bwp_defrost", (555, 204, 612, 228)),
         ),
     ),
 )

@@ -16,6 +16,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
+from .enums import EnumMatcher
 from .ocr import GlyphOcr
 from .reader import read_all
 from .vnc import BrunnerVncError
@@ -33,6 +34,7 @@ class BrunnerCoordinator(DataUpdateCoordinator[dict[str, object]]):
             CONF_SCAN_INTERVAL, entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
         )
         self._ocr: GlyphOcr | None = None
+        self._enums: EnumMatcher | None = None
         super().__init__(
             hass,
             _LOGGER,
@@ -40,10 +42,10 @@ class BrunnerCoordinator(DataUpdateCoordinator[dict[str, object]]):
             update_interval=timedelta(seconds=interval),
         )
 
-    async def _async_update_data(self) -> dict[str, float | None]:
+    async def _async_update_data(self) -> dict[str, object]:
         return await self.hass.async_add_executor_job(self._poll)
 
-    def _poll(self) -> dict[str, float | None]:
+    def _poll(self) -> dict[str, object]:
         """Blocking poll: navigate each screen, capture and OCR its regions.
 
         One tap per VNC connection (the display drops taps batched over a single
@@ -51,7 +53,9 @@ class BrunnerCoordinator(DataUpdateCoordinator[dict[str, object]]):
         """
         if self._ocr is None:
             self._ocr = GlyphOcr.load()
+        if self._enums is None:
+            self._enums = EnumMatcher.load()
         try:
-            return read_all(self._host, self._port, self._ocr)
+            return read_all(self._host, self._port, self._ocr, self._enums)
         except BrunnerVncError as err:
             raise UpdateFailed(f"Brunner display unreachable: {err}") from err
