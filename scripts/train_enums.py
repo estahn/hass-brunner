@@ -30,11 +30,18 @@ SEEDS = [
             "bwp_defrost": "off",      # "Off"
         },
     ),
+    (
+        "scratch/eos_stove.png",
+        {
+            "stove_state": "lighting_up",  # "Stage 1 Light-up"
+        },
+    ),
 ]
 
-BOXES = {
-    r.field: r.box for s in _regions.ENUM_SCREENS for r in s.regions
-}
+# Enum boxes come from both the dedicated enum screens and any enum_regions
+# attached to a numeric screen (e.g. the stove state).
+BOXES = {r.field: r.box for s in _regions.ENUM_SCREENS for r in s.regions}
+BOXES.update({r.field: r.box for s in _regions.SCREENS for r in s.enum_regions})
 
 
 def main() -> None:

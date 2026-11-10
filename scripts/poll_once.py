@@ -53,6 +53,8 @@ def main() -> None:
             im.save(f"scratch/poll_{screen.name}.png")
         for r in screen.regions:
             values[r.key] = O.read_number(im, r.box, r.invert)
+        for er in screen.enum_regions:
+            values[er.key] = E.match(im, er.box, er.field)
     for screen in _regions.ENUM_SCREENS:
         for tap in screen.taps:
             _vnc.tap_once(host, port, *tap, settle=1.0)

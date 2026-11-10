@@ -104,6 +104,18 @@ SENSORS: tuple[BrunnerSensorDescription, ...] = (
     _flow("hk1_flow_rate", "Heating circuit 1 flow rate"),
     # Hot water
     _t("dhw_set_temp", "Hot water setpoint"),
+    # Wood stove (EOS)
+    _t("combustion_chamber_temp", "Combustion chamber temperature"),
+    _power("stove_power", "Stove power"),
+    BrunnerSensorDescription(
+        key="stove_yield_today", value_key="stove_yield_today", name="Stove yield today",
+        native_unit_of_measurement="kWh",
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    BrunnerSensorDescription(
+        key="stove_state", value_key="stove_state", name="Stove state",
+    ),
     # Text enums (whole-region template match; None when state not yet seeded)
     BrunnerSensorDescription(
         key="bwp_status", value_key="bwp_status", name="Heat pump status",

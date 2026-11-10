@@ -191,4 +191,8 @@ Archive is rolling 2 h graphs only — no history backfill.
   Integer and most decimal reads are stable; could add a re-read/median.
 - More enum states: capture status/mode/defrost in running/cooling/defrost
   states and add them to `scripts/train_enums.py` (Env.-zone is highly dynamic).
-- EOS stove screen has a variable layout; not yet in the region table.
+- EOS stove: combustion chamber temp, stove power, yield today and stove state
+  are now read from the stable "Tile stove" detail screen (EOS tab -> Tile stove
+  icon). The EOS *home* screen alternates layouts; the detail screen does not.
+  `stove_state` enum seeded with "lighting_up" ("Stage 1 Light-up"); capture the
+  refill/"Nachlegen" state when it occurs and add it to train_enums.py.

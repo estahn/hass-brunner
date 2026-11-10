@@ -41,6 +41,10 @@ CASES = [
     ("bwp-sensors.png", (228, 293, 248, 309), False, 6.0),
     ("bwp-sensors.png", (288, 293, 308, 309), False, 3.0),
     ("hotwater-a.png", (272, 269, 302, 284), False, 50.0),
+    # Wood stove combustion chamber (large font)
+    ("brunner-eos.png", (249, 145, 345, 180), False, 246.0),
+    ("eos-stove.png", (249, 145, 345, 180), False, 151.0),
+    ("eos-stove.png", (28, 360, 120, 380), False, 40.1),
 ]
 
 

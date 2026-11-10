@@ -71,6 +71,9 @@ def read_all(
             values[region.key] = (
                 round(num * region.scale, 2) if num is not None else None
             )
+        if enum_matcher is not None:
+            for er in screen.enum_regions:
+                values[er.key] = enum_matcher.match(image, er.box, er.field)
     if enum_matcher is not None:
         for screen in enum_screens:
             image = _navigate_and_capture(

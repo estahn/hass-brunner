@@ -29,6 +29,8 @@ class Screen:
     name: str
     taps: tuple[tuple[int, int], ...]  # from any state, in order
     regions: tuple[Region, ...] = field(default_factory=tuple)
+    # Text-enum fields read from the SAME capture as `regions` (no extra nav).
+    enum_regions: tuple["EnumRegion", ...] = field(default_factory=tuple)
     # A static label region unique to this screen, used to confirm navigation
     # landed correctly (taps are occasionally dropped). None = no check.
     landmark: tuple[int, int, int, int] | None = None
@@ -104,6 +106,19 @@ SCREENS: tuple[Screen, ...] = (
             Region("dhw_set_temp", (272, 269, 302, 284)),
         ),
         landmark=(118, 142, 215, 166),  # "Water pump" label
+    ),
+    Screen(
+        "eos_stove",
+        taps=(TAB_EOS, (118, 45)),  # EOS tab -> Tile stove (combustion) screen
+        regions=(
+            Region("combustion_chamber_temp", (249, 145, 345, 180)),
+            Region("stove_power", (293, 196, 322, 212)),
+            Region("stove_yield_today", (28, 360, 120, 380)),
+        ),
+        enum_regions=(
+            EnumRegion("stove_state", "stove_state", (148, 396, 345, 424)),
+        ),
+        landmark=(152, 122, 290, 142),  # "Comb.chamber" label
     ),
 )
 
