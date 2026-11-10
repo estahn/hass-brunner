@@ -1,6 +1,7 @@
 {
   "domain": "brunner",
   "name": "Brunner Heating",
+  "categories": ["climate"],
   "codeowners": ["@estahn"],
   "config_flow": true,
   "documentation": "https://github.com/estahn/hass-brunner",
@@ -8,5 +9,5 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/estahn/hass-brunner/issues",
   "requirements": ["numpy>=1.26"],
-  "version": "0.1.3"
+  "version": "0.1.4"
 }
