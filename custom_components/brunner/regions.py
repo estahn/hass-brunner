@@ -29,6 +29,9 @@ class Screen:
     name: str
     taps: tuple[tuple[int, int], ...]  # from any state, in order
     regions: tuple[Region, ...] = field(default_factory=tuple)
+    # A static label region unique to this screen, used to confirm navigation
+    # landed correctly (taps are occasionally dropped). None = no check.
+    landmark: tuple[int, int, int, int] | None = None
 
 
 @dataclass(frozen=True)
@@ -45,6 +48,7 @@ class EnumScreen:
     name: str
     taps: tuple[tuple[int, int], ...]
     regions: tuple[EnumRegion, ...] = field(default_factory=tuple)
+    landmark: tuple[int, int, int, int] | None = None
 
 
 # Bottom tabs and common top icons (640x480)
@@ -66,6 +70,7 @@ SCREENS: tuple[Screen, ...] = (
             Region("bwp_pressure_high", (228, 293, 248, 309)),
             Region("bwp_pressure_low", (288, 293, 308, 309)),
         ),
+        landmark=(62, 122, 150, 144),  # "COP" label
     ),
     Screen(
         "system_overview",
@@ -79,6 +84,7 @@ SCREENS: tuple[Screen, ...] = (
             Region("buffer_bottom_temp", (263, 345, 305, 362), invert=True),
             Region("buffer_pressure", (315, 405, 345, 421)),
         ),
+        landmark=(58, 183, 150, 202),  # "Solar-PV" label
     ),
     Screen(
         "heating_circuit_1",
@@ -89,6 +95,7 @@ SCREENS: tuple[Screen, ...] = (
             Region("hk1_return_actual", (515, 266, 605, 289)),
             Region("hk1_flow_rate", (525, 330, 590, 350)),
         ),
+        landmark=(112, 142, 270, 166),  # "Heating circ. 1" label
     ),
     Screen(
         "hot_water",
@@ -96,6 +103,7 @@ SCREENS: tuple[Screen, ...] = (
         regions=(
             Region("dhw_set_temp", (272, 269, 302, 284)),
         ),
+        landmark=(118, 142, 215, 166),  # "Water pump" label
     ),
 )
 
@@ -112,5 +120,6 @@ ENUM_SCREENS: tuple[EnumScreen, ...] = (
             EnumRegion("bwp_mode", "bwp_mode", (258, 390, 352, 414)),
             EnumRegion("bwp_defrost", "bwp_defrost", (555, 204, 612, 228)),
         ),
+        landmark=(112, 142, 210, 166),  # "Brunner HP" label
     ),
 )

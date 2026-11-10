@@ -79,3 +79,29 @@ class EnumMatcher:
                 best_dist = dist
                 best_label = label
         return best_label if best_dist <= threshold else None
+
+
+# --- Screen landmark verification -------------------------------------------
+# A navigation tap is occasionally dropped, leaving the wrong screen showing.
+# Each screen has a static label region; comparing it to a seeded reference
+# confirms the screen before its values are trusted.
+LANDMARK_THRESHOLD = 0.04
+
+
+def load_landmarks(path: str | None = None) -> dict[str, np.ndarray]:
+    if path is None:
+        path = os.path.join(os.path.dirname(__file__), "landmarks.npz")
+    if not os.path.exists(path):
+        return {}
+    data = np.load(path)
+    return {k: data[k].astype(np.float32) for k in data.files}
+
+
+def landmark_matches(
+    image: Image.Image,
+    box: tuple[int, int, int, int],
+    reference: np.ndarray,
+    threshold: float = LANDMARK_THRESHOLD,
+) -> bool:
+    dist = float(np.mean((reference - normalise_region(image, box)) ** 2))
+    return dist <= threshold

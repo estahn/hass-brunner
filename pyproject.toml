@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Live HA test (tests/test_live_setup.py) needs pytest-homeassistant-custom-component
+# and asyncio_mode=auto; run it with:
+#   BRUNNER_TEST_HOST=<display-ip> pytest tests/test_live_setup.py -o asyncio_mode=auto

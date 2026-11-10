@@ -12,7 +12,7 @@ from typing import Callable
 
 from PIL import Image
 
-from .enums import EnumMatcher
+from .enums import EnumMatcher, landmark_matches, load_landmarks
 from .ocr import GlyphOcr
 from .regions import ENUM_SCREENS, SCREENS, EnumScreen, Screen
 from .vnc import capture_once, tap_once
@@ -22,6 +22,23 @@ _LOGGER = logging.getLogger(__name__)
 # Home baseline: tap Home on the EOS tab so every screen's tap sequence starts
 # from a known place.
 _HOME_TAPS = ((230, 465), (40, 45))
+
+
+def _navigate_and_capture(host, port, taps, settle, landmark_box, landmarks, name):
+    """Run a tap sequence and capture; if a landmark check fails, retry once."""
+    for attempt in (1, 2):
+        for tap in taps:
+            tap_once(host, port, *tap, settle=settle)
+        frame = capture_once(host, port)
+        image = Image.frombytes("RGB", (frame.width, frame.height), frame.rgb)
+        ref = landmarks.get(name)
+        if landmark_box is None or ref is None:
+            return image
+        if landmark_matches(image, landmark_box, ref):
+            return image
+        _LOGGER.debug("Brunner: wrong screen for %s (attempt %d), retrying", name, attempt)
+    _LOGGER.warning("Brunner: screen %s not confirmed after retry; values may be stale", name)
+    return image
 
 
 def read_all(
@@ -39,14 +56,14 @@ def read_all(
     Returns a flat ``{sensor_key: value}`` dict (numbers, enum strings, and a
     derived ``bwp_running`` bool). Unreadable regions map to None.
     """
+    landmarks = load_landmarks()
     values: dict[str, object] = {}
     for tap in _HOME_TAPS:
         tap_once(host, port, *tap, settle=0.5)
     for screen in screens:
-        for tap in screen.taps:
-            tap_once(host, port, *tap, settle=settle)
-        frame = capture_once(host, port)
-        image = Image.frombytes("RGB", (frame.width, frame.height), frame.rgb)
+        image = _navigate_and_capture(
+            host, port, screen.taps, settle, screen.landmark, landmarks, screen.name
+        )
         if on_screen is not None:
             on_screen(screen.name, image)
         for region in screen.regions:
@@ -56,10 +73,9 @@ def read_all(
             )
     if enum_matcher is not None:
         for screen in enum_screens:
-            for tap in screen.taps:
-                tap_once(host, port, *tap, settle=settle)
-            frame = capture_once(host, port)
-            image = Image.frombytes("RGB", (frame.width, frame.height), frame.rgb)
+            image = _navigate_and_capture(
+                host, port, screen.taps, settle, screen.landmark, landmarks, screen.name
+            )
             if on_screen is not None:
                 on_screen(screen.name, image)
             for region in screen.regions:

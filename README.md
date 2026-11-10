@@ -4,14 +4,24 @@ Local Home Assistant integration for **BRUNNER** heating systems (BWP heat pump,
 EOS wood stove, BHZ central unit, Solar‑PV) that have a Touchdisplay 2.0/3.0 —
 **without** the paid BRUNNER Energiemanager / Smart Home (BSH) Modbus board.
 
-> Status: **working poller, pre-release.** Access, navigation and OCR are
-> implemented and verified end-to-end against a live BWP 13 green: 20 numeric
-> values (heat-pump flow/return/COP/power/pressures, buffer temps,
-> heating-circuit flow/return/rate, solar & fireplace power, hot-water setpoint)
-> plus 3 text enums (status/mode/defrost) and a derived "running" binary, all
-> read correctly and cross-checked where two screens show the same value. Still
-> to do before a tagged release: config-flow/coordinator testing inside a running
-> Home Assistant, more enum states, and the variable-layout EOS stove screen.
+> Status: **working, pre-release.** Verified end-to-end inside a real Home
+> Assistant core (via `pytest-homeassistant-custom-component`) against a live
+> BWP 13 green: the config entry sets up and all 24 entities populate with real
+> values — 20 numeric (heat-pump flow/return/COP/power/pressures, buffer temps,
+> heating-circuit flow/return/rate, solar & fireplace power, hot-water setpoint),
+> 3 text enums (status/mode/defrost) and a derived "running" binary. Navigation
+> is landmark-checked (a dropped tap is caught and retried). Still to do before a
+> tagged release: more enum states, the variable-layout EOS stove screen, and
+> occasional last-decimal misreads on the smallest fonts.
+
+## Testing
+
+- Offline OCR regression (no hardware, CI): `pytest tests/test_ocr_offline.py`
+  reads known values from `docs/screens/` to guard the digit templates.
+- Live end-to-end (needs the display): sets up the integration in a real HA
+  core and asserts entities populate:
+  `BRUNNER_TEST_HOST=<display-ip> pytest tests/test_live_setup.py -o asyncio_mode=auto`
+  (install `pytest-homeassistant-custom-component`).
 
 ## How it works
 
@@ -36,8 +46,9 @@ default poll interval is deliberately slow (5 min).
 
 Values are a fixed GUI font at fixed positions, so OCR is a bundled **digit
 template matcher** ([`ocr.py`](custom_components/brunner/ocr.py)) needing only
-Pillow and numpy — both already in Home Assistant, so no Tesseract binary and no
-extra wheels at runtime. A region is cropped, thresholded (polarity per region,
+Pillow and numpy (declared in the manifest; both sit within Home Assistant's own
+version constraints) — so no Tesseract binary at runtime. A region is cropped,
+thresholded (polarity per region,
 since buffer temps are white-on-colour), segmented into glyphs, and each glyph
 height-normalised and matched against bundled templates
 ([`glyphs.npz`](custom_components/brunner/glyphs.npz)); the first whitespace-
@@ -53,7 +64,8 @@ Validate or re-measure against your own display with
 
 - The display must be reachable over the network with VNC enabled (default on
   the systems tested).
-- Runtime: Pillow + numpy (Home Assistant core dependencies). Tesseract is a
+- Runtime: Pillow + numpy (declared in the manifest; Home Assistant installs
+  them within its own version constraints). Tesseract is a
   dev-only dependency for retraining templates.
 
 ## Security note

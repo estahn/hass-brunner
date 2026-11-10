@@ -7,6 +7,6 @@
   "integration_type": "hub",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/estahn/hass-brunner/issues",
-  "requirements": [],
+  "requirements": ["numpy>=1.26", "Pillow>=10.0.0"],
   "version": "0.1.0"
 }

@@ -175,10 +175,20 @@ Archive is rolling 2 h graphs only — no history backfill.
 - `bwp_running` (binary) is derived from flow rate / heating power — more
   reliable than the tiny fan/compressor pills.
 
+## Validated in Home Assistant
+- Set up as a real config entry in HA core (pytest-homeassistant-custom-component)
+  against the live display: all 24 entities populate with real values.
+- Navigation is landmark-checked per screen (`landmarks.npz`, seeded by
+  `scripts/train_landmarks.py`): a dropped tap that lands on the wrong screen is
+  detected and the navigation retried once. This fixed an intermittent
+  wrong-screen misread (hot-water setpoint reading 0).
+
 ## Still open
 - Fan % and compressor rev/s: rendered in a ~6px pill font, too small to OCR
   reliably (a "0" misreads as "1"); use `bwp_running` instead. Revisit if a
   larger readout exists.
+- Occasional last-decimal misread on the smallest value fonts (e.g. 35.3 -> 35.1).
+  Integer and most decimal reads are stable; could add a re-read/median.
 - More enum states: capture status/mode/defrost in running/cooling/defrost
   states and add them to `scripts/train_enums.py` (Env.-zone is highly dynamic).
 - EOS stove screen has a variable layout; not yet in the region table.
