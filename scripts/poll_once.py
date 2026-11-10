@@ -23,8 +23,12 @@ from PIL import Image  # noqa: E402
 
 
 def main() -> None:
-    host = sys.argv[1] if len(sys.argv) > 1 else "192.168.178.124"
-    port = int(sys.argv[2]) if len(sys.argv) > 2 else 5900
+    args = [a for a in sys.argv[1:] if a != "--dump"]
+    if not args:
+        print("usage: poll_once.py <host> [port] [--dump]")
+        sys.exit(2)
+    host = args[0]
+    port = int(args[1]) if len(args) > 1 else 5900
     dump = "--dump" in sys.argv
     O = _ocr.GlyphOcr.load(
         os.path.join(

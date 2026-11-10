@@ -1,6 +1,7 @@
 # Brunner BWP 13 green — sensor map (via touchdisplay VNC)
 
-Access: `192.168.178.124:5900`, x11vnc, no password, framebuffer **640×480**.
+Access: `192.168.x.x:5900` (your touchdisplay's IP), x11vnc, no password,
+framebuffer **640×480**.
 Captured 2026‑11‑09 ~17:26. Heat pump was in standby, wood fireplace (EOS) running, outdoor 3 °C.
 
 Navigation is by on‑screen taps over VNC:
