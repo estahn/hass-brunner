@@ -46,9 +46,9 @@ default poll interval is deliberately slow (5 min).
 
 Values are a fixed GUI font at fixed positions, so OCR is a bundled **digit
 template matcher** ([`ocr.py`](custom_components/brunner/ocr.py)) needing only
-Pillow and numpy (declared in the manifest; both sit within Home Assistant's own
-version constraints) — so no Tesseract binary at runtime. A region is cropped,
-thresholded (polarity per region,
+Pillow (a Home Assistant core dependency) and numpy (declared in the manifest;
+within HA's own version constraints) — so no Tesseract binary at runtime. A
+region is cropped, thresholded (polarity per region,
 since buffer temps are white-on-colour), segmented into glyphs, and each glyph
 height-normalised and matched against bundled templates
 ([`glyphs.npz`](custom_components/brunner/glyphs.npz)); the first whitespace-
@@ -64,8 +64,8 @@ Validate or re-measure against your own display with
 
 - The display must be reachable over the network with VNC enabled (default on
   the systems tested).
-- Runtime: Pillow + numpy (declared in the manifest; Home Assistant installs
-  them within its own version constraints). Tesseract is a
+- Runtime: Pillow (Home Assistant core dependency) + numpy (declared in the
+  manifest; HA installs it within its own constraints). Tesseract is a
   dev-only dependency for retraining templates.
 
 ## Security note

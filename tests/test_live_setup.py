@@ -25,7 +25,7 @@ HOST = os.environ.get("BRUNNER_TEST_HOST")
 
 @pytest.mark.skipif(not HOST, reason="set BRUNNER_TEST_HOST to run the live test")
 async def test_live_setup_populates_entities(
-    hass: HomeAssistant, socket_enabled
+    hass: HomeAssistant, enable_custom_integrations, socket_enabled
 ) -> None:
     # The live test must reach the display on the LAN; lift pytest-socket's guard.
     import pytest_socket
