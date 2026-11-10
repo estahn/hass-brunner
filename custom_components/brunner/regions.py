@@ -108,6 +108,15 @@ SCREENS: tuple[Screen, ...] = (
         landmark=(118, 142, 215, 166),  # "Water pump" label
     ),
     Screen(
+        "fireplace",
+        taps=(TAB_HEIZUNG, (199, 45)),  # Heizung tab -> Fireplace screen
+        regions=(
+            Region("stove_flow_temp", (278, 142, 345, 166)),
+            Region("stove_return_temp", (545, 142, 612, 166)),
+        ),
+        landmark=(118, 204, 170, 228),  # "Pump" label
+    ),
+    Screen(
         "eos_stove",
         taps=(TAB_EOS, (118, 45)),  # EOS tab -> Tile stove (combustion) screen
         regions=(

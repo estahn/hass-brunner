@@ -183,6 +183,16 @@ Archive is rolling 2 h graphs only — no history backfill.
   detected and the navigation retried once. This fixed an intermittent
   wrong-screen misread (hot-water setpoint reading 0).
 
+## Fireplace (Heizung -> Fireplace screen)
+- `stove_flow_temp` (S12/T2/ST34 Wood) and `stove_return_temp` (Return) read from
+  this screen. It also shows `Pump: Off/On` and `Power` — Pump and Power track
+  each other (pump off <-> power 0), so `binary_sensor.stove_pump` is derived
+  from stove power > 0 (reliable for both states; the "On" text can't be seeded
+  until the pump runs). Landmark: the "Pump" label.
+- The refill signal of choice: pump On->Off while the combustion chamber is still
+  hot = fire burning down, time to add wood. BRUNNER's own "Reloading info"
+  (Nachlegehinweis) hint is in EOS -> Menu and was found switched OFF.
+
 ## Still open
 - Fan % and compressor rev/s: rendered in a ~6px pill font, too small to OCR
   reliably (a "0" misreads as "1"); use `bwp_running` instead. Revisit if a

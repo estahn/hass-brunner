@@ -107,6 +107,8 @@ SENSORS: tuple[BrunnerSensorDescription, ...] = (
     # Wood stove (EOS)
     _t("combustion_chamber_temp", "Combustion chamber temperature"),
     _power("stove_power", "Stove power"),
+    _t("stove_flow_temp", "Stove flow temperature"),
+    _t("stove_return_temp", "Stove return temperature"),
     BrunnerSensorDescription(
         key="stove_yield_today", value_key="stove_yield_today", name="Stove yield today",
         native_unit_of_measurement="kWh",

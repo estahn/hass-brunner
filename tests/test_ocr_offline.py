@@ -45,6 +45,9 @@ CASES = [
     ("brunner-eos.png", (249, 145, 345, 180), False, 246.0),
     ("eos-stove.png", (249, 145, 345, 180), False, 151.0),
     ("eos-stove.png", (28, 360, 120, 380), False, 40.1),
+    # Fireplace (stove loop) flow and return
+    ("fireplace.png", (278, 142, 345, 166), False, 63.0),
+    ("fireplace.png", (545, 142, 612, 166), False, 58.0),
 ]
 
 

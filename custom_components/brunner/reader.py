@@ -91,6 +91,12 @@ def read_all(
         values["bwp_running"] = bool((flow_rate or 0) > 0 or (heat_power or 0) > 0)
     else:
         values["bwp_running"] = None
+    # The stove's charging pump runs iff it is transferring heat to the buffer,
+    # i.e. stove power > 0 (pump off <-> power 0, confirmed on the Fireplace screen).
+    stove_p = values.get("stove_power")
+    values["stove_pump"] = (
+        bool(stove_p > 0) if isinstance(stove_p, (int, float)) else None
+    )
     # Return the panel to a neutral Home screen for the local user.
     for tap in _HOME_TAPS:
         tap_once(host, port, *tap, settle=0.3)
