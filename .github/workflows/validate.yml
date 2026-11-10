@@ -10,6 +10,8 @@ jobs:
   hacs:
     name: HACS
     runs-on: ubuntu-latest
+    # The HACS action only validates public repositories; skip while private.
+    if: ${{ !github.event.repository.private }}
     steps:
       - uses: actions/checkout@v4
       - uses: hacs/action@main
